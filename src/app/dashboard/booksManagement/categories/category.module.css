@@ -1,0 +1,29 @@
+.membersTableWrapper {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 475px;
+}
+
+.tableControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.buttonsGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.actionsIcon {
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.selectedRow {
+  background-color: #ede9f3;
+}

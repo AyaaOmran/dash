@@ -1,0 +1,166 @@
+.container {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 20px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  color: #e0e0e0;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.cardHeader h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  color: #333;
+}
+
+.unsaved {
+  color: #eab308;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.field input {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid  #e0e0e0;
+  font-size: 16px;
+  background-color: #fafafa;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.field input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(90, 83, 138, 0.1);
+}
+
+.errorText {
+  font-size: 13px;
+  color: #dc2626;
+  margin-top: 5px;
+}
+
+.optional {
+  font-size: 13px;
+  color: #999;
+  font-weight: 400;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+
+.primaryBtn {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.primaryBtn:hover:not([disabled]) {
+  background-color: #362a51;
+    transform: translateY(-2px);
+}
+
+.primaryBtn[disabled],
+.primaryBtn[aria-disabled="true"] {
+  background-color: #aaa;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 15px;
+}
+
+.permissionsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.centeredMessage {
+  display: flex; 
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; 
+  height: 100%;
+  text-align: center; /* يضمن توسيط النص داخل كل عنصر */
+  padding: 2rem; /* يضيف مساحة داخلية */
+  background-color: #fff; /* لون خلفية أبيض */
+  border-radius: 12px; /* حواف دائرية */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* ظل خفيف لإبراز العنصر */
+}
+.centeredMessage h2 {
+  font-size: 1.5rem; /* حجم خط كبير للعنصر h2 */
+  color: #d9534f; /* لون أحمر لتنبيه المستخدم بالخطأ */
+  margin-bottom: 0.5rem; /* مسافة بين العنوان والنص */
+}
+
+.centeredMessage p {
+  font-size: 1rem; /* حجم خط مناسب للنص */
+  color: #6c757d; /* لون رمادي للنص */
+  line-height: 1.5; /* مسافة بين الأسطر لتحسين القراءة */
+}

@@ -1,0 +1,90 @@
+.accordionGroup {
+  border: 1px solid  #e0e0e0;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.accordionGroup:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.accordionHeader {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 17px;
+  color: #333;
+  background: #f9f9f9;
+  transition: background 0.2s;
+}
+
+.accordionHeader:hover {
+  background-color: #f0f0f5;
+}
+
+.accordionBody {
+  padding: 15px 20px;
+  background: #fff;
+}
+
+
+.permissionList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.permissionItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  padding: 12px 16px;
+  border-bottom: 1px solid  #e0e0e0;
+  transition: background-color 0.2s;
+  cursor: pointer;
+  border-radius: 8px; /* إضافة زوايا دائرية */
+}
+
+.permissionItem:last-child {
+  border-bottom: none;
+}
+
+.permissionItem:hover {
+  background-color: #f9f9f9;
+}
+
+.permissionItem label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  flex-grow: 1; /* لجعل المساحة كلها قابلة للنقر */
+}
+
+.permissionItem input[type="checkbox"] {
+  transform: scale(1.2); /* تكبير مربع الاختيار قليلاً */
+  accent-color: var(--color-primary); /* تغيير لون المربع */
+}
+
+.permissionLabel {
+  font-size: 15px;
+ color: #333;
+}
+
+.accordionTitle {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.accordionIcon {
+  font-size: 20px;
+  font-weight: bold;
+}

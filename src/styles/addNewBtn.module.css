@@ -1,0 +1,15 @@
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.addBtn {
+  background-color: #4d3c73;
+  color: white;
+}

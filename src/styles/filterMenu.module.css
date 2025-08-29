@@ -1,0 +1,41 @@
+.filterBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.filterBtn {
+  background-color: #eee;
+  color: #4d3c73;
+  border: 1px solid #ccc;
+}
+
+.filterMenu {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  z-index: 1000;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 0;
+  width: 160px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filterOption {
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #4d3c73;
+  transition: background-color 0.2s ease;
+}
+
+.filterOption:hover {
+  background-color: #f4f4f4;
+}

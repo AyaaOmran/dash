@@ -1,0 +1,26 @@
+.layoutContainer {
+  display: flex;
+  height: 100vh;
+  background-color: var(--color-primary);
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.main {
+  flex: 1;
+  background-color: var(--color-light);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-left: 1rem;
+  height: calc(100vh - 2rem);
+  overflow: auto;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainContent {
+  padding: 2rem; /* البادينغ هون بدل ما يكون على main */
+  flex: 1;
+}
+

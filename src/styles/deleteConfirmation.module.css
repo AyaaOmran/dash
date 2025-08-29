@@ -1,0 +1,99 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 101;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.iconContainer {
+  width: 48px;
+  height: 48px;
+  background: #eef2ff;
+  color: var(--color-primary);
+  border-radius: 9999px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.userIcon {
+  font-size: 24px;
+}
+
+.smallContent {
+  background: white;
+  border-radius: 16px;
+  padding: 24px 28px;
+  width: 100%;
+  max-width: 380px;
+  position: relative;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.confirmText {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.adminName {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.actionsRow {
+  display: flex;
+  gap: 12px;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.cancelBtn {
+  background: #eee;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.deleteBtn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cancelBtn:disabled,
+.deleteBtn:disabled {
+  opacity: 0.6;
+  cursor: auto;
+}

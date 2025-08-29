@@ -1,0 +1,119 @@
+.sidebar {
+   width: 250px; 
+}
+.headingContainer{
+    /* background-color: blue; */
+    display: flex;
+    justify-content: center;
+}
+.heading{
+    font-weight: 700;
+    font-size: 30px;
+    color: var( --color-secondary);
+    margin-top: auto;
+    margin-bottom: auto;
+    user-select: none;
+}
+.headingIcon{
+    font-size: 30px;
+    color: var(--color-secondary);
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 5px;
+}
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.itemIcon ,.menuIcon{
+    font-size: 25px;
+    color: var(--color-secondary);
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 10px;
+}
+
+.menu .item {
+  display: flex;
+  align-items: center;
+  margin-top: 30px;
+  color: var(--color-light);
+  padding:20px 16px;
+  cursor: pointer;
+}
+
+.item:hover,.items:hover {
+    color: var(--color-secondary);
+}
+
+.active {
+  color: var(--color-secondary)!important;
+  background-color: rgba(0, 0, 0, 0.05); 
+  border-radius: 8px;
+}
+
+.sectionTitle {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  color: var(--color-light);
+  padding:0px 20px;
+  margin-top: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.subItems {
+  display: flex;
+  flex-direction: column;
+  margin-left: 15px;
+  /* background-color: burlywood; */
+}
+
+.items {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  color: var(--color-light);
+  padding:10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  /* background-color: black; */
+}
+.arrowIcon {
+  transition: transform 0.1s ease;
+}
+
+.rotated {
+  transform: rotate(180deg);
+}
+
+.subItemsWrapper {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.subItemsWrapper.open {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.subItems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-left: 1rem;
+}
+
+.disabled {
+  opacity: 0.6;
+  color: #aaa;             
+  cursor: not-allowed;     
+  pointer-events: none;    
+  background-color: transparent !important;
+}
+
