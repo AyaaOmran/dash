@@ -1,0 +1,45 @@
+.membersTableWrapper {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 475px;
+}
+
+.buttonsGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.actionsIcon {
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.selectedRow {
+  background-color: #ede9f3;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tabButton {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: #f0f0f0;
+  text-decoration: none;
+  font-weight: 500;
+  color: #333;
+  transition: 0.2s;
+}
+
+.tabButton:hover {
+  background: #e0e0e0;
+}
+
+.active {
+  background: var(--color-primary);
+  color: white;
+}

@@ -5,7 +5,6 @@ import styles from "./author.module.css";
 import SearchBar from "@/components/common/SearchBar";
 import FilterMenu from "@/components/common/FilterMenu";
 import MembersTable from "@/components/common/MembersTable";
-import FullPageLoader from "@/components/common/FullPageLoader";
 import { usePermissions } from "@/context/PermissionsContext";
 import PermissionGuard from "@/components/features/guard/PermissionGuard";
 import Pagination from "@/components/common/Pagination";
@@ -23,7 +22,7 @@ export default function Authors() {
   const [paginationLinks, setPaginationLinks] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const { permissions} = usePermissions();
+  const { permissions } = usePermissions();
 
   const fetchAuthors = async (page = 1) => {
     setLoading(true);
@@ -73,94 +72,97 @@ export default function Authors() {
   };
 
   return (
-        <PermissionGuard allowedRoles={["super_admin","admin"]}  requiredPermissions={["read author"]}>
-    <div className={styles.membersTableWrapper}>
-      <div className={styles.tableControls}>
-        <SearchBar value={searchSection} onChange={setSearchSection} />
-        <div className={styles.buttonsGroup}>
-          <FilterMenu
-            options={["Name", "Newest", "Oldest"]}
-            onSelect={(selected) => {}}
-          />
-          {permissions["create author"] &&(
-            <AddNewBtn
-              value="Author"
-              to="/dashboard/booksManagement/authors/add-author"
-            />
-          )}
-
-        </div>
-      </div>
-
-      <MembersTable
-        members={filteredMembers}
-        selectedRows={selectedRows}
-        onRowCheck={handleRowCheck}
-        onSelectAll={handleSelectAll}
-        loading={loading}
- actions={
-    permissions["update author"] || permissions["delete author"]
-      ? (author) => (
-          <>
-            {permissions["update author"] && (
-              <Link
-                href={`/dashboard/booksManagement/authors/${author.id}/edit-author`}
-                title="Edit"
-                className={styles.iconButton}
-              >
-                <Icon icon="tabler:edit" className={styles.actionsIcon} />
-              </Link>
-            )}
-
-            {permissions["delete author"] && (
-              <button title="Delete" onClick={() => setDeletingAuthor(author)}>
-                <Icon icon="tabler:trash" className={styles.actionsIcon} />
-              </button>
-            )}
-          </>
-        )
-      : null
-  }
-        columns={[
-          {label:"ID",key:"id"},
-          {
-            label: "Picture",
-            render: (author) => (
-              <img
-                src={author.image}
-                alt={author.name}
-                style={{ width: 25, height: 25, borderRadius: "50%" }}
+    <PermissionGuard
+      allowedRoles={["super_admin", "admin"]}
+      requiredPermissions={["read author"]}
+    >
+      <div className={styles.membersTableWrapper}>
+        <div className={styles.tableControls}>
+          <SearchBar value={searchSection} onChange={setSearchSection} />
+          <div className={styles.buttonsGroup}>
+            {permissions["create author"] && (
+              <AddNewBtn
+                value="Author"
+                to="/dashboard/booksManagement/authors/add-author"
               />
-            ),
-          },
-          { label: "Name", key: "name" },
-          { label: "Country", key: "country" },
-          { label: "N.Books", key: "number_of_books" },
-        ]}
-      />
-      <Pagination
-        currentPage={currentPage}
-        links={paginationLinks}
-        onPageChange={(page) => fetchAuthors(page)}
-      />
+            )}
+          </div>
+        </div>
 
-      {deletingAuthor && (
-        <DeleteConfirmation
-          itemId={deletingAuthor.id}
-          itemName={deletingAuthor.name}
-          itemType="author"
-          apiUrl={"http://127.0.0.1:8000/api/authors"}
-          icon="tabler:book-off"
-          onClose={() => setDeletingAuthor(null)}
-          onSuccess={() => {
-            setDeletingAuthor(null);
-            fetchAuthors();
-          }}
+        <MembersTable
+          members={filteredMembers}
+
+          loading={loading}
+          actions={
+            permissions["update author"] || permissions["delete author"]
+              ? (author) => (
+                  <>
+                    {permissions["update author"] && (
+                      <Link
+                        href={`/dashboard/booksManagement/authors/${author.id}/edit-author`}
+                        title="Edit"
+                        className={styles.iconButton}
+                      >
+                        <Icon
+                          icon="tabler:edit"
+                          className={styles.actionsIcon}
+                        />
+                      </Link>
+                    )}
+
+                    {permissions["delete author"] && (
+                      <button
+                        title="Delete"
+                        onClick={() => setDeletingAuthor(author)}
+                      >
+                        <Icon
+                          icon="tabler:trash"
+                          className={styles.actionsIcon}
+                        />
+                      </button>
+                    )}
+                  </>
+                )
+              : null
+          }
+          columns={[
+            { label: "ID", key: "id" },
+            {
+              label: "Picture",
+              render: (author) => (
+                <img
+                  src={author.image}
+                  alt={author.name}
+                  style={{ width: 25, height: 25, borderRadius: "50%" }}
+                />
+              ),
+            },
+            { label: "Name", key: "name" },
+            { label: "Country", key: "country" },
+            { label: "N.Books", key: "number_of_books" },
+          ]}
         />
-      )}
-      
-    </div>
-        </PermissionGuard>
+        <Pagination
+          currentPage={currentPage}
+          links={paginationLinks}
+          onPageChange={(page) => fetchAuthors(page)}
+        />
 
+        {deletingAuthor && (
+          <DeleteConfirmation
+            itemId={deletingAuthor.id}
+            itemName={deletingAuthor.name}
+            itemType="author"
+            apiUrl={"http://127.0.0.1:8000/api/authors"}
+            icon="tabler:book-off"
+            onClose={() => setDeletingAuthor(null)}
+            onSuccess={() => {
+              setDeletingAuthor(null);
+              fetchAuthors();
+            }}
+          />
+        )}
+      </div>
+    </PermissionGuard>
   );
 }

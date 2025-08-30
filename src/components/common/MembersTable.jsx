@@ -1,13 +1,10 @@
 import { Icon } from "@iconify/react";
 import FullPageLoader from "@/components/common/FullPageLoader";
-import styles from '@/styles/membersTable.module.css';
+import styles from "@/styles/membersTable.module.css";
 import PermissionGuard from "../features/guard/PermissionGuard";
 
 export default function MembersTable({
   members = [],
-  selectedRows = [],
-  onRowCheck = () => {},
-  onSelectAll = () => {},
   actions = null,
   columns = [],
   loading = false,
@@ -18,26 +15,17 @@ export default function MembersTable({
       <table className={styles.membersTable}>
         <thead>
           <tr>
-            <th>
-              <input
-                type="checkbox"
-                onChange={(e) => onSelectAll(e.target.checked)}
-                checked={
-                  members.length > 0 && selectedRows.length === members.length
-                }
-              />
-            </th>
             {columns.map((col, i) => (
               <th key={i}>{col.label}</th>
             ))}
-             {hasActions && <th>Actions</th>}
+            {hasActions && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
           {loading ? (
             <tr className={styles.loadingRow}>
               <td
-                colSpan={columns.length + 2}
+                colSpan={columns.length + (hasActions ? 1 : 0)}
                 style={{ textAlign: "center", padding: "2rem" }}
               >
                 <FullPageLoader />
@@ -45,19 +33,7 @@ export default function MembersTable({
             </tr>
           ) : (
             members.map((member) => (
-              <tr
-                key={member.id}
-                className={
-                  selectedRows.includes(member.id) ? styles.selectedRow : ""
-                }
-              >
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={selectedRows.includes(member.id)}
-                    onChange={() => onRowCheck(member.id)}
-                  />
-                </td>
+              <tr key={member.id}>
                 {columns.map((col, i) => (
                   <td key={i}>
                     {typeof col.render === "function"

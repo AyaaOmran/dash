@@ -1,21 +1,21 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Icon } from "@iconify/react";
-import styles from "./editBook.module.css";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
 import PermissionGuard from "@/components/features/guard/PermissionGuard";
 import FullPageLoader from "@/components/common/FullPageLoader";
+import styles from "./editBook.module.css";
+import { Icon } from "@iconify/react";
 
 export default function EditBook() {
   const { bookId } = useParams();
   const router = useRouter();
 
-  // حالة النموذج - إصلاح هيكل summary
   const [formData, setFormData] = useState({
     title: { en: "", ar: "" },
     description: { en: "", ar: "" },
+    summary: { en: "", ar: "" },
     authorId: "",
     authorName: "",
     categoryId: "",
@@ -27,12 +27,12 @@ export default function EditBook() {
     publishDate: "",
     pages: "",
     points: "",
-    summary: { en: "", ar: "" }, // توحيد اسم الحقل
     bookFile: null,
     coverImage: null,
   });
 
-  // حالات البحث
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [filteredAuthors, setFilteredAuthors] = useState([]);
   const [authorTyping, setAuthorTyping] = useState("");
   const [filteredCategories, setFilteredCategories] = useState([]);
@@ -41,14 +41,57 @@ export default function EditBook() {
   const [sizeCategoryTyping, setSizeCategoryTyping] = useState("");
   const [filteredCountries, setFilteredCountries] = useState([]);
   const [countryTyping, setCountryTyping] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch book data
+  useEffect(() => {
+    if (!bookId) return;
+
+    const fetchBookData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(
+          `http://127.0.0.1:8000/api/books/${bookId}`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }
+        );
+
+        const data = response.data.data;
+        setFormData({
+          title: { en: data.title?.en || "", ar: data.title?.ar || "" },
+          description: { en: data.description?.en || "", ar: data.description?.ar || "" },
+          summary: { en: data.summary?.en || "", ar: data.summary?.ar || "" },
+          authorId: data.author_id || "",
+          authorName: data.author_name || "",
+          categoryId: data.category_id || "",
+          categoryName: data.category_name || "",
+          sizeCategoryId: data.size_category_id || "",
+          sizeCategoryName: data.size_category_name || "",
+          countryId: data.country_id || "",
+          countryName: data.country_name || "",
+          publishDate: data.publish_date || "",
+          pages: data.number_of_pages || "",
+          points: data.points || "",
+          bookFile: null,
+          coverImage: null,
+        });
+      } catch (error) {
+        toast.error(error.response?.data?.message || "Something went wrong");
+        router.back();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBookData();
+  }, [bookId, router]);
 
   useEffect(() => {
     if (!authorTyping.trim()) {
       setFilteredAuthors([]);
       return;
     }
+
     const fetchAuthors = async () => {
       try {
         const response = await axios.get(
@@ -69,26 +112,6 @@ export default function EditBook() {
     const timeoutId = setTimeout(fetchAuthors, 300);
     return () => clearTimeout(timeoutId);
   }, [authorTyping]);
-
-  const handleAuthorTypingChange = (e) => {
-    const value = e.target.value;
-    setAuthorTyping(value);
-    // هذه طريقة جيدة "لإعادة تعيين" الاختيار عندما يبدأ المستخدم في الكتابة
-    setFormData((prev) => ({
-      ...prev,
-      authorName: value,
-      authorId: "",
-    }));
-  };
-
-  const handleAuthorSelection = (author) => {
-    setFormData((prev) => ({
-      ...prev,
-      authorId: author.id,
-      authorName: author.name,
-    }));
-    setFilteredAuthors([]); // يخفي نتائج البحث
-  };
 
   useEffect(() => {
     if (!categoryTyping.trim()) {
@@ -149,6 +172,7 @@ export default function EditBook() {
       setFilteredCountries([]);
       return;
     }
+
     const fetchCountries = async () => {
       try {
         const response = await axios.get(
@@ -161,141 +185,45 @@ export default function EditBook() {
           }
         );
         setFilteredCountries(response.data.countries || []);
-      } catch (error) {
-        toast.error(
-          error.response?.data?.message ||
-            "Something went wrong, please try again!"
-        );
-      }
+      }catch (error) {
+      toast.error(
+        error.response?.data?.message || "Something went wrong, please try agian!"
+      );
+    } 
     };
 
     const timeoutId = setTimeout(fetchCountries, 300);
     return () => clearTimeout(timeoutId);
   }, [countryTyping]);
+  
+const handleAuthorTypingChange = (e) => {
+  const value = e.target.value;
+  setAuthorTyping(value);
+  setFormData((prev) => ({
+    ...prev,
+    authorName: value,
+    authorId: "",
+  }));
+};
 
-  // جلب بيانات الكتاب الحالية
-  useEffect(() => {
-    const fetchBookData = async () => {
-      if (!bookId) return;
+const handleCategoryTypingChange = (e) => {
+  const value = e.target.value;
+  setCategoryTyping(value);
+  setFormData((prev) => ({
+    ...prev,
+    categoryName: value,
+    categoryId: "",
+  }));
+};
 
-      try {
-        setIsLoading(true);
-        const response = await axios.get(
-          `http://127.0.0.1:8000/api/books/${bookId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
 
-        const bookData = response.data.data;
-        const fetchedAuthorId = bookData.author?.id || "";
-        const fetchedCategoryId = bookData.category?.id || "";
-        const fetchedSizeCategoryId = bookData.size_category?.id || "";
-        const fetchedCountryId = bookData.country?.id || "";
-        setFormData({
-          title: {
-            en: bookData.title?.en || "",
-            ar: bookData.title?.ar || "",
-          },
-          description: {
-            en: bookData.description?.en || "",
-            ar: bookData.description?.ar || "",
-          },
-          authorId: fetchedAuthorId || "",
-          authorName: bookData.author_name || "",
-          categoryId: fetchedCategoryId || "",
-          categoryName: bookData.category_name || "",
-          sizeCategoryId: fetchedSizeCategoryId || "",
-          sizeCategoryName: bookData.size_category_name || "",
-          countryId: fetchedCountryId || "",
-          countryName: bookData.country_name || "",
-          publishDate: bookData.publish_date || "",
-          pages: bookData.number_of_pages || "",
-          points: bookData.points || "",
-          summary: {
-            // تصحيح اسم الحقل ليتطابق مع state
-            en: bookData.summary?.en || "",
-            ar: bookData.summary?.ar || "",
-          },
-          bookFile: null,
-          coverImage: null,
-        });
-      } catch (error) {
-        toast.error(error.response?.data?.message || "Something went wrong");
-        router.back(); // إضافة router إلى dependency array
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchBookData();
-  }, [bookId, router]); // إضافة router هنا
-
-  // إرسال النموذج
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    if (!formData.authorId) {
-      toast.error("الرجاء اختيار مؤلف من نتائج البحث.");
-      setIsSubmitting(false);
-      return; // إيقاف إرسال النموذج
-    }
-    try {
-      const data = new FormData();
-
-      // إضافة الحقول إلى FormData
-      data.append("title[en]", formData.title.en);
-      data.append("title[ar]", formData.title.ar);
-      data.append("description[en]", formData.description.en);
-      data.append("description[ar]", formData.description.ar);
-      data.append("author_id", formData.authorId);
-      data.append("category_id", formData.categoryId);
-      data.append("size_category_id", formData.sizeCategoryId);
-      data.append("country_id", formData.countryId);
-      data.append("publish_date", formData.publishDate);
-      data.append("number_of_pages", formData.pages);
-      data.append("points", formData.points);
-      data.append("summary[en]", formData.summary.en); // استخدام الحقل الصحيح
-      data.append("summary[ar]", formData.summary.ar); // استخدام الحقل الصحيح
-
-      if (formData.bookFile) data.append("book_pdf", formData.bookFile);
-      if (formData.coverImage) data.append("cover_image", formData.coverImage);
-
-      // إرسال طلب التحديث
-      const response = await axios.post(
-        `http://127.0.0.1:8000/api/book/update/${bookId}`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      toast.success("Book updated successfully!");
-      router.push("/books"); // إعادة التوجيه بعد النجاح
-    } catch (error) {
-      console.error("Error updating book:", error);
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to update book. Please try again."
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     const keys = name.split(".");
     if (keys.length === 2) {
       setFormData((prev) => ({
         ...prev,
-
         [keys[0]]: { ...prev[keys[0]], [keys[1]]: value },
       }));
     } else {
@@ -303,17 +231,54 @@ export default function EditBook() {
     }
   };
 
- const handleFileChange = (e) => {
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: files[0] }));
+  };
 
- const { name, files } = e.target;
+  // Handle submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.authorId) {
+      toast.error("Please select an author from the search results.");
+      return;
+    }
 
- setFormData((prev) => ({ ...prev, [name]: files[0] }));
+    try {
+      setIsSubmitting(true);
+      const data = new FormData();
+      data.append("title[en]", formData.title.en);
+      data.append("title[ar]", formData.title.ar);
+      data.append("description[en]", formData.description.en);
+      data.append("description[ar]", formData.description.ar);
+      data.append("summary[en]", formData.summary.en);
+      data.append("summary[ar]", formData.summary.ar);
+      data.append("author_id", formData.authorId);
+      data.append("category_id", formData.categoryId);
+      data.append("size_category_id", formData.sizeCategoryId);
+      data.append("country_id", formData.countryId);
+      data.append("publish_date", formData.publishDate);
+      data.append("number_of_pages", formData.pages);
+      data.append("points", formData.points);
+      if (formData.bookFile) data.append("book_pdf", formData.bookFile);
+      if (formData.coverImage) data.append("cover_image", formData.coverImage);
 
- };
+      await axios.post(`http://127.0.0.1:8000/api/book/update/${bookId}`, data, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-  if (isLoading) {
-    return <FullPageLoader />;
-  }
+      toast.success("Book updated successfully!");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update book.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoading) return <FullPageLoader />;
 
   return (
     <PermissionGuard
@@ -441,14 +406,7 @@ export default function EditBook() {
               <input
                 type="text"
                 value={formData.categoryName}
-                onChange={(e) => {
-                  setCategoryTyping(e.target.value);
-                  setFormData((prev) => ({
-                    ...prev,
-                    categoryName: e.target.value,
-                    categoryId: "",
-                  }));
-                }}
+onChange={handleCategoryTypingChange}
                 required
                 placeholder="Search for category..."
                 className={styles.input}
@@ -522,7 +480,6 @@ export default function EditBook() {
                   name="points"
                   value={formData.points}
                   onChange={handleChange}
-                  required
                   className={styles.input}
                 />
               </div>
@@ -638,7 +595,55 @@ export default function EditBook() {
           </div>
 
           {/* ---------------- Country ---------------- */}
-
+          <div className={styles.card}>
+            <div className={styles.sectionHeader}>
+              <Icon
+                icon="mdi:map-marker-outline"
+                className={styles.sectionIcon}
+              />
+              <h2 className={styles.sectionTitle}>Location Information</h2>
+            </div>
+            <div className={styles.searchableContainer}>
+              <label htmlFor="country" className={styles.label}>
+                Country <span className={styles.requiredStar}>*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.countryName}
+                onChange={(e) => {
+                  setCountryTyping(e.target.value);
+                  setFormData((prev) => ({
+                    ...prev,
+                    countryName: e.target.value,
+                    countryId: "",
+                  }));
+                }}
+                required
+                placeholder="Search for country..."
+                className={styles.input}
+              />
+              {filteredCountries.length > 0 && (
+                <ul className={styles.searchResultsList}>
+                  {filteredCountries.map((a) => (
+                    <li
+                      key={a.id}
+                      onClick={() => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          countryId: a.id,
+                          countryName: a.name,
+                        }));
+                        setFilteredCountries([]);
+                      }}
+                      className={styles.searchResultItem}
+                    >
+                      {a.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
 
           <div className={styles.submitButtonWrapper}>
             <button

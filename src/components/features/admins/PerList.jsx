@@ -8,7 +8,7 @@ export default function PerList({ title, permissions, onChange, saving }) {
 
   return (
     <div className={styles.accordionGroup}>
-      {/* العنوان */}
+     
       <div
         className={styles.accordionHeader}
         onClick={() => setIsOpen(!isOpen)}
@@ -19,7 +19,6 @@ export default function PerList({ title, permissions, onChange, saving }) {
         <span className={styles.accordionIcon}>{isOpen ? "−" : "+"}</span>
       </div>
 
-      {/* القائمة المنسدلة */}
       {isOpen && (
         <div className={styles.accordionBody}>
           <ul className={styles.permissionList}>
@@ -28,12 +27,11 @@ export default function PerList({ title, permissions, onChange, saving }) {
                 key={key}
                 className={styles.permissionItem}
               >
-                {/* الحل: نقلنا onChange إلى الـ input واستخدمنا الـ label لزيادة مساحة النقر */}
                 <label>
                   <input
                     type="checkbox"
                     checked={value}
-                    onChange={() => onChange(key, !value)} // هذه الدالة ستغير القيمة
+                    onChange={() => onChange(key, !value)} 
                     disabled={saving}
                   />
                   <span className={styles.permissionLabel}>{key}</span>

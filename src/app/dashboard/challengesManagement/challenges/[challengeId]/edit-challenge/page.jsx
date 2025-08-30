@@ -1,398 +1,252 @@
-"use client";
-import React, { useState, useCallback } from 'react';
+"use client"
+import React, { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import styles from './editChallenge.module.css';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import PermissionGuard from '@/components/features/guard/PermissionGuard';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
-// Mock data for search functionality
-const categories = [
-  'Fiction', 'Science', 'History', 'Fantasy', 'Biography',
-  'Technology', 'Health', 'Cooking', 'Art', 'Travel', 'Self-Help'
-];
-
-const bookSizes = [
-  'large', 'medium', 'small',
-];
-
-const countries = [
-  'United States', 'United Kingdom', 'Canada', 'Australia', 'Germany',
-  'France', 'Spain', 'Italy', 'Japan', 'China', 'Brazil',
-  'Egypt', 'Saudi Arabia', 'United Arab Emirates'
-];
-
-// Main component for the Add Book form
 export default function EditChallenge() {
+  const { challengeId } = useParams();
+  const router = useRouter();
+
+  // -------------------- States --------------------
+  const [categoryTyping, setCategoryTyping] = useState("");
+  const [sizeCategoryTyping, setSizeCategoryTyping] = useState("");
+  const [filteredCategories, setFilteredCategories] = useState([]);
+  const [filteredSizeCategories, setFilteredSizeCategories] = useState([]);
   const [formData, setFormData] = useState({
     title: { en: '', ar: '' },
-    author: { en: '', ar: '' },
     description: { en: '', ar: '' },
-    category: '',
-    publishDate: '',
-    pages: '',
-    bookSize: '',
-    summaryLink: '',
-    bookFile: null,
-    coverImage: null,
-    country: '',
+    points: '',
+    duration: '',
+    number_of_books: '',
+    category_id: "",
+    size_category_id: "",
+    booksNames: [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState('');
-  
-  // State for search results
-  const [filteredCategories, setFilteredCategories] = useState([]);
-  const [filteredBookSizes, setFilteredBookSizes] = useState([]);
-  const [filteredCountries, setFilteredCountries] = useState([]);
 
-  // Handle form input changes and search filtering
+  // -------------------- Fetch challenge details --------------------
+  useEffect(() => {
+    const fetchChallenge = async () => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/challenges/${challengeId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+        const data = res.data.data;
+
+        setFormData({
+          title: data.title || { en: '', ar: '' },
+          description: data.description || { en: '', ar: '' },
+          points: data.points || '',
+          duration: data.duration || '',
+          number_of_books: data.number_of_books || '',
+          category_id: data.category_id || "",
+          size_category_id: data.size_category_id || "",
+          booksNames: data.books?.map(b => b.title_book.en) || [],
+        });
+
+        setCategoryTyping(data.category_name?.en || '');
+        setSizeCategoryTyping(data.size_category_name?.en || '');
+      } catch (err) {
+        toast.error('Failed to fetch challenge details');
+      }
+    };
+    fetchChallenge();
+  }, [challengeId, router]);
+
+  // -------------------- Debounced search --------------------
+  useEffect(() => {
+    if (typeof categoryTyping !== "string" || !categoryTyping.trim()) {
+      setFilteredCategories([]);
+      return;
+    }
+
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await axios.get("http://127.0.0.1:8000/api/category/search", {
+          params: { search: categoryTyping },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setFilteredCategories(res.data.categories || []);
+      } catch (err) {
+        console.error(err);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [categoryTyping]);
+
+  useEffect(() => {
+    if (typeof sizeCategoryTyping !== "string" || !sizeCategoryTyping.trim()) {
+      setFilteredSizeCategories([]);
+      return;
+    }
+
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await axios.get("http://127.0.0.1:8000/api/size-category/search", {
+          params: { search: sizeCategoryTyping },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setFilteredSizeCategories(res.data.size_categories || []);
+      } catch (err) {
+        console.error(err);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [sizeCategoryTyping]);
+
+  // -------------------- Handlers --------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    // Update form data state
     if (name.includes('.')) {
       const [main, sub] = name.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [main]: {
-          ...prev[main],
-          [sub]: value
-        }
-      }));
+      setFormData(prev => ({ ...prev, [main]: { ...prev[main], [sub]: value } }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
-    
-    // Filter search results based on input
-    if (name === 'category') {
-      const results = categories.filter(item =>
-        item.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredCategories(results);
-    } else if (name === 'bookSize') {
-      const results = bookSizes.filter(item =>
-        item.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredBookSizes(results);
-    } else if (name === 'country') {
-      const results = countries.filter(item =>
-        item.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredCountries(results);
-    }
   };
 
-  // Handle selection from search results list
-  const handleSelect = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear search results after selection
-    if (name === 'category') setFilteredCategories([]);
-    if (name === 'bookSize') setFilteredBookSizes([]);
-    if (name === 'country') setFilteredCountries([]);
+  const handleCategorySelect = (cat) => {
+    setFormData(prev => ({ ...prev, category_id: cat.id }));
+    setCategoryTyping(cat.en);
+    setFilteredCategories([]);
   };
 
-  // Handle file input changes
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    setFormData(prev => ({ ...prev, [name]: files[0] }));
+  const handleSizeCategorySelect = (cat) => {
+    setFormData(prev => ({ ...prev, size_category_id: cat.id }));
+    setSizeCategoryTyping(cat.en);
+    setFilteredSizeCategories([]);
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setMessage('');
-    
-    // Simulate API call
+
     try {
-      console.log('Form Data Submitted:', formData);
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setMessage('Book added successfully!');
-      // Clear form after successful submission
-      setFormData({
-        title: { en: '', ar: '' },
-        author: { en: '', ar: '' },
-        description: { en: '', ar: '' },
-        category: '',
-        publishDate: '',
-        pages: '',
-        bookSize: '',
-        summaryLink: '',
-        bookFile: null,
-        coverImage: null,
-        country: '',
-      });
-    } catch (error) {
-      console.error('Submission failed:', error);
-      setMessage('Failed to add book. Please try again.');
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        points: formData.points,
+        duration: formData.duration,
+        number_of_books: formData.number_of_books,
+        category_id: formData.category_id,
+        size_category_id: formData.size_category_id,
+      };
+
+      await axios.post(
+        `http://127.0.0.1:8000/api/challenge/update/${challengeId}`,
+        payload,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+
+      toast.success('Challenge updated successfully!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update challenge');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // -------------------- Render --------------------
   return (
-            <PermissionGuard
-              allowedRoles={["super_admin", "admin"]}
-              requiredPermissions={["read challenge","update challenge"]}
-            >
-    <div className={styles.container}>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        {/* Book Information Section Card */}
-        <div className={styles.card}>
-          <div className={styles.sectionHeader}>
-            <Icon icon="mdi:trophy-outline" className={styles.sectionIcon} />
-            <h2 className={styles.sectionTitle}>Challenge Information</h2>
-          </div>
-          <p className={styles.sectionDescription}>
-            Update the basic information about the challenge in both English and Arabic.
-          </p>
-          
-          <div className={styles.grid}>
-            <div>
-              <label htmlFor="title-en" className={styles.label}>
-                Title 
-              </label>
-              <input
-                type="text"
-                id="title-en"
-                name="title.en"
-                value={formData.title.en}
-                onChange={handleChange}
-                placeholder="Enter title in English"
-                required
-                className={styles.input}
-              />
+    <PermissionGuard allowedRoles={["super_admin","admin"]} requiredPermissions={["read challenge","update challenge"]}>
+      <div className={styles.container}>
+        <form onSubmit={handleSubmit} className={styles.form}>
+
+          {/* Title & Description */}
+          <div className={styles.card}>
+            <div className={styles.grid}>
+              <div>
+                <label className={styles.label}>Title (EN)</label>
+                <input type="text" name="title.en" value={formData.title.en} onChange={handleChange} className={styles.input} />
+              </div>
+              <div>
+                <label className={styles.label}>Title (AR)</label>
+                <input type="text" name="title.ar" value={formData.title.ar} onChange={handleChange} className={styles.input} />
+              </div>
             </div>
-            <div>
-              <label htmlFor="title-ar" className={`${styles.label} ${styles.rtlText}`}>
-                عنوان التحدي 
-              </label>
-              <input
-                type="text"
-                id="title-ar"
-                name="title.ar"
-                value={formData.title.ar}
-                onChange={handleChange}
-                placeholder="أدخل عنوان التحدي باللغة العربية"
-                required
-                className={`${styles.input} ${styles.rtlInput}`}
-              />
+
+            <div className={styles.grid}>
+              <div>
+                <label className={styles.label}>Description (EN)</label>
+                <textarea name="description.en" value={formData.description.en} onChange={handleChange} className={styles.input} rows={4} />
+              </div>
+              <div>
+                <label className={styles.label}>Description (AR)</label>
+                <textarea name="description.ar" value={formData.description.ar} onChange={handleChange} className={styles.input} rows={4} />
+              </div>
             </div>
-          </div>
-          
-          <div className={styles.grid}>
-            <div>
-              <label htmlFor="description-en" className={styles.label}>
-                Description 
-              </label>
-              <textarea
-                id="description-en"
-                name="description.en"
-                value={formData.description.en}
-                onChange={handleChange}
-                placeholder="Enter description in English"
-                rows="4"
-                required
-                className={styles.input}
-              ></textarea>
+
+            <div className={styles.grid}>
+              <div>
+                <label className={styles.label}>Points</label>
+                <input type="number" name="points" value={formData.points} onChange={handleChange} className={styles.input} />
+              </div>
+              <div>
+                <label className={styles.label}>Duration (days)</label>
+                <input type="number" name="duration" value={formData.duration} onChange={handleChange} className={styles.input} />
+              </div>
+              <div>
+                <label className={styles.label}>Number of Books</label>
+                <input type="number" name="number_of_books" value={formData.number_of_books} onChange={handleChange} className={styles.input} />
+              </div>
             </div>
-            <div>
-              <label htmlFor="description-ar" className={`${styles.label} ${styles.rtlText}`}>
-                وصف التحدي 
-              </label>
-              <textarea
-                id="description-ar"
-                name="description.ar"
-                value={formData.description.ar}
-                onChange={handleChange}
-                placeholder="أدخل وصف التحدي باللغة العربية"
-                rows="4"
-                required
-                className={`${styles.input} ${styles.rtlInput}`}
-              ></textarea>
+
+            {/* Category & Size Category with search */}
+            <div className={styles.grid}>
+              <div>
+                <label className={styles.label}>Category</label>
+                <input type="text" value={categoryTyping} onChange={(e) => setCategoryTyping(e.target.value)} className={styles.input} />
+                {filteredCategories.length > 0 && (
+                  <ul className={styles.searchResultsList}>
+                    {filteredCategories.map(cat => (
+                      <li key={cat.id} className={styles.searchResultItem} onClick={() => handleCategorySelect(cat)}>
+                        {cat.en} / {cat.ar}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div>
+                <label className={styles.label}>Size Category</label>
+                <input type="text" value={sizeCategoryTyping} onChange={(e) => setSizeCategoryTyping(e.target.value)} className={styles.input} />
+                {filteredSizeCategories.length > 0 && (
+                  <ul className={styles.searchResultsList}>
+                    {filteredSizeCategories.map(cat => (
+                      <li key={cat.id} className={styles.searchResultItem} onClick={() => handleSizeCategorySelect(cat)}>
+                        {cat.en} / {cat.ar}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           </div>
-          
-          {/* Category Field with Search */}
-          <div className={styles.searchableContainer}>
-            <label htmlFor="category" className={styles.label}>
-              Category 
-            </label>
-            <input
-              type="text"
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              placeholder="e.g., Fiction, Science, History"
-              required
-              className={styles.input}
-            />
-            {filteredCategories.length > 0 && formData.category && (
-              <ul className={styles.searchResultsList}>
-                {filteredCategories.map((item, index) => (
-                  <li
-                    key={index}
-                    onClick={() => handleSelect('category', item)}
-                    className={styles.searchResultItem}
-                  >
-                    {item}
-                  </li>
+
+          {/* Selected Books (Read-only) */}
+          {formData.booksNames.length > 0 && (
+            <div className={styles.card}>
+              <p>Books in Challenge:</p>
+              <ul>
+                {formData.booksNames.map((title, i) => (
+                  <li key={i}>{title}</li>
                 ))}
               </ul>
-            )}
-
-          </div>
-        </div>
-
-        {/* Publication Details Section Card */}
-        <div className={styles.card}>
-          <div className={styles.sectionHeader}>
-            <Icon icon="tabler:list-details" className={styles.sectionIcon} />
-            <h2 className={styles.sectionTitle}>Challegne Details</h2>
-          </div>
-          <p className={styles.sectionDescription}>
-            Update challenge details.
-          </p>
-          <div className={`${styles.grid} ${styles.mdGridCols2}`}>
-            <div>
-              <label htmlFor="duration" className={styles.label}>
-                Duration 
-              </label>
-              <input
-                type="number"
-                id="duration"
-                name="duration"
-                value={formData.publishDate}
-                onChange={handleChange}
-                placeholder="e.g., 12"
-                required
-                className={styles.input}
-              />
             </div>
-            <div>
-              <label htmlFor="books" className={styles.label}>
-                Number of Books 
-              </label>
-              <input
-                type="number"
-                id="books"
-                name="books"
-                value={formData.pages}
-                onChange={handleChange}
-                placeholder="e.g., 8"
-                required
-                className={styles.input}
-              />
-            </div>
-            
-            {/* Book Size Field with Search */}
-            <div className={styles.searchableContainer}>
-              <label htmlFor="bookSize" className={styles.label}>
-                Size Category 
-              </label>
-              <input
-                type="text"
-                id="bookSize"
-                name="bookSize"
-                value={formData.bookSize}
-                onChange={handleChange}
-                placeholder="e.g., large"
-                className={styles.input}
-              />
-              {filteredBookSizes.length > 0 && formData.bookSize && (
-                <ul className={styles.searchResultsList}>
-                  {filteredBookSizes.map((item, index) => (
-                    <li
-                      key={index}
-                      onClick={() => handleSelect('bookSize', item)}
-                      className={styles.searchResultItem}
-                    >
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            
-            </div>
-            
-            <div>
-              <label htmlFor="pionts" className={styles.label}>
-                Points 
-              </label>
-              <input
-                type="number"
-                id="points"
-                name="poinst"
-                value={formData.summaryLink}
-                onChange={handleChange}
-                placeholder="e.g., 25"
-                className={styles.input}
-              />
-            </div>
-          </div>
-        </div>
-        
-        {/* Location Information Section Card */}
-        <div className={styles.card}>
-          <div className={styles.sectionHeader}>
-            <Icon icon="ph:books" className={styles.sectionIcon} />
-            <h2 className={styles.sectionTitle}>Challegne Books</h2>
-          </div>
-          <p className={styles.sectionDescription}>
-            Update choosen books.
-          </p>
-          
-          {/* Country Field with Search */}
-          <div className={styles.searchableContainer}>
-            <label htmlFor="books" className={styles.label}>
-              Books 
-            </label>
-            <input
-              type="text"
-              id="books"
-              name="books"
-              value={formData.country}
-              onChange={handleChange}
-              placeholder="e.g., Harry Potter"
-              required
-              className={styles.input}
-            />
-            {filteredCountries.length > 0 && formData.country && (
-              <ul className={styles.searchResultsList}>
-                {filteredCountries.map((item, index) => (
-                  <li
-                    key={index}
-                    onClick={() => handleSelect('country', item)}
-                    className={styles.searchResultItem}
-                  >
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
+          )}
 
-        {/* Submit Button */}
-        <div className={styles.submitButtonWrapper}>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={styles.submitButton}
-          >
-            {isSubmitting ? 'Updating...' : 'Update Challenge'}
-          </button>
-        </div>
-
-        {/* Message display */}
-        {message && (
-          <div className={`${styles.message} ${message.includes('successfully') ? styles.successMessage : styles.errorMessage}`}>
-            {message}
+          <div className={styles.submitButtonWrapper}>
+            <button type="submit" disabled={isSubmitting} className={styles.submitButton}>
+              {isSubmitting ? 'Updating...' : 'Update Challenge'}
+            </button>
           </div>
-        )}
-      </form>
-    </div>
-            </PermissionGuard>
-
+        </form>
+      </div>
+    </PermissionGuard>
   );
 }

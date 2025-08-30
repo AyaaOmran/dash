@@ -5,21 +5,18 @@ import styles from "./editAuthor.module.css";
 import PermissionGuard from "@/components/features/guard/PermissionGuard";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { redirect, useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import FullPageLoader from "@/components/common/FullPageLoader";
 
 export default function EditAuthor() {
   const { authorId } = useParams();
   const router = useRouter();
-
   const [formData, setFormData] = useState({
     name: { en: "", ar: "" },
     imageFile: null,
     countryId: "",
     countryName: "",
   });
-
-  // State to hold the original data for comparison
   const [initialData, setInitialData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filteredCountries, setFilteredCountries] = useState([]);
@@ -27,7 +24,6 @@ export default function EditAuthor() {
   const [previewImage, setPreviewImage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch author by id
   useEffect(() => {
     const fetchAuthor = async () => {
       try {
@@ -52,7 +48,7 @@ export default function EditAuthor() {
           countryId: fetchedCountryId,
           countryName: author.country?.en || "",
         });
-        
+
         setInitialData({
           name: {
             en: author.name.en || "",
@@ -65,7 +61,7 @@ export default function EditAuthor() {
         setPreviewImage(author.image);
       } catch (error) {
         toast.error("Failed to fetch author details!");
-        router.push("/authors"); 
+        router.push("/authors");
       } finally {
         setIsLoading(false);
       }
@@ -76,7 +72,6 @@ export default function EditAuthor() {
     }
   }, [authorId, router]);
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -94,7 +89,6 @@ export default function EditAuthor() {
     }
   };
 
-  // Handle file input changes
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setFormData((prev) => ({ ...prev, imageFile: file }));
@@ -105,7 +99,6 @@ export default function EditAuthor() {
     }
   };
 
-  // Fetch countries
   useEffect(() => {
     if (!countryTyping.trim()) {
       setFilteredCountries([]);
@@ -133,7 +126,6 @@ export default function EditAuthor() {
     return () => clearTimeout(timeoutId);
   }, [countryTyping]);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -160,14 +152,12 @@ export default function EditAuthor() {
         }
       );
 
-      // Update initial data after successful submission
       setInitialData({
         name: { en: formData.name.en, ar: formData.name.ar },
         image: formData.imageFile ? previewImage : initialData.image,
         countryId: formData.countryId,
       });
 
-      // Reset the image file state to disable the button
       setFormData((prev) => ({ ...prev, imageFile: null }));
 
       toast.success("Author updated successfully!");
@@ -181,12 +171,12 @@ export default function EditAuthor() {
     }
   };
 
-  const isChanged = initialData && (
-    formData.name.en !== initialData.name.en ||
-    formData.name.ar !== initialData.name.ar ||
-    formData.countryId !== initialData.countryId ||
-    formData.imageFile !== null
-  );
+  const isChanged =
+    initialData &&
+    (formData.name.en !== initialData.name.en ||
+      formData.name.ar !== initialData.name.ar ||
+      formData.countryId !== initialData.countryId ||
+      formData.imageFile !== null);
 
   if (isLoading) return <FullPageLoader />;
 
@@ -208,9 +198,7 @@ export default function EditAuthor() {
             </div>
             <div className={styles.grid}>
               <div>
-                <label className={styles.label}>
-                  Name (English) 
-                </label>
+                <label className={styles.label}>Name (English)</label>
                 <input
                   type="text"
                   name="name.en"
@@ -222,7 +210,7 @@ export default function EditAuthor() {
               </div>
               <div>
                 <label className={`${styles.label} ${styles.rtlText}`}>
-                  اسم الكاتب 
+                  اسم الكاتب
                 </label>
                 <input
                   type="text"
@@ -268,9 +256,7 @@ export default function EditAuthor() {
           {/* Country Search */}
           <div className={styles.card}>
             <div className={styles.searchableContainer}>
-              <label className={styles.label}>
-                Country 
-              </label>
+              <label className={styles.label}>Country</label>
               <input
                 type="text"
                 value={formData.countryName}

@@ -5,7 +5,6 @@ import styles from "./category.module.css";
 import SearchBar from "@/components/common/SearchBar";
 import FilterMenu from "@/components/common/FilterMenu";
 import MembersTable from "@/components/common/MembersTable";
-import FullPageLoader from "@/components/common/FullPageLoader";
 import Pagination from "@/components/common/Pagination";
 import AddNewBtn from "@/components/common/AddNewBtn";
 import axios from "axios";
@@ -81,10 +80,6 @@ export default function Categories() {
         <div className={styles.tableControls}>
           <SearchBar value={searchSection} onChange={setSearchSection} />
           <div className={styles.buttonsGroup}>
-            <FilterMenu
-              options={["Name", "Newest", "Oldest"]}
-              onSelect={(selected) => {}}
-            />
             {permissions["create category"] && (
               <AddNewBtn
                 value="Category"

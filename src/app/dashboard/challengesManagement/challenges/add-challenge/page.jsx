@@ -146,10 +146,11 @@ export default function AddChallenge() {
       data.append("duration", formData.duration);
       data.append("number_of_books", formData.number_of_books);
       data.append("points", formData.points);
-      formData.booksIds.forEach((id) => data.append("books[]", id));
+      formData.booksIds.forEach((id) => data.append("ids_books[]", id));
       if (formData.bookFile) data.append("book_file", formData.bookFile);
       if (formData.coverImage) data.append("cover_image", formData.coverImage);
 
+      console.log([...formData.booksIds]);
       const res = await axios.post("http://127.0.0.1:8000/api/challenges", data, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
@@ -388,8 +389,9 @@ export default function AddChallenge() {
                         type="button"
                         className={styles.removeBookBtn}
                         onClick={() => handleRemoveBook(i)}
+                        style={{cursor:"pointer"}}
                       >
-                        ❌
+                           ❌
                       </button>
                     </li>
                   ))}

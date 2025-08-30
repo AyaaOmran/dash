@@ -81,10 +81,6 @@ export default function Challenges() {
         <div className={styles.tableControls}>
           <SearchBar value={searchSection} onChange={setSearchSection} />
           <div className={styles.buttonsGroup}>
-            <FilterMenu
-              options={["Name", "Newest", "Oldest"]}
-              onSelect={(selected) => {}}
-            />
             {permissions["create challenge"] && (
               <AddNewBtn
                 value="Challenge"
@@ -101,9 +97,9 @@ export default function Challenges() {
           onSelectAll={handleSelectAll}
           loading={loading}
           actions={
-            permissions["update book"] ||
-            permissions["delete book"] ||
-            permissions["read book"]
+            permissions["update challenge"] ||
+            permissions["delete challenge"] ||
+            permissions["read challenge"]
               ? (challenge) => (
                   <>
                   {permissions["read challenge"] && (

@@ -7,50 +7,57 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import FullPageLoader from "@/components/common/FullPageLoader";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 
 export default function ChallengeDetails() {
-    const { challengeId } = useParams();
+  const { challengeId } = useParams();
   const [challenge, setChallenge] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchChallenge = async () => {
-      try {
-        setIsLoading(true);
-        const response = await axios.get(
-          `http://127.0.0.1:8000/api/challenges/${challengeId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-
-        if (response.data.success) {
-          const data = response.data.data;
-          setChallenge({
-            title: data.title || "Challenge Title",
-            description: data.description?.en || "",
-            points: data.points || 0,
-            category: data.category?.en || "",
-            sizeCategory: data.size_category?.en || "",
-            duration: data.duration || "",
-            participants: data.participants || 0,
-            booksNumber: data.number_of_books || 0,
-            books: data.books_pdfs || [],
-          });
+useEffect(() => {
+  const fetchChallenge = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(
+        `http://127.0.0.1:8000/api/challenges/${challengeId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-      } catch (error) {
-        toast.error(error.response?.data?.message || "Something went wrong");
-      } finally {
-        setIsLoading(false);
+      );
+
+      if (response.data.success) {
+        const data = response.data.data;
+        setChallenge({
+          title: data.title?.en || "Challenge Title",
+          description: data.description?.en || "",
+          points: data.points || 0,
+          category: data.category_name?.en || "",
+          sizeCategory: data.size_catgory_name?.en || "",
+          duration: data.duration || "",
+          participants: data.number_of_participants || 0,
+          booksNumber: data.number_of_books || 0,
+          books: data.books.map((book) => ({
+            id: book.id,
+            title: book.title_book?.en || "Book",
+            cover: book.cover_image || null,
+            pdf: book.book_pdf || null,
+          })),
+        });
       }
-    };
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchChallenge();
-  }, [challengeId]);
+  fetchChallenge();
+}, [challengeId]);
 
-  if (isLoading) return <FullPageLoader/>;
+
+  if (isLoading) return <FullPageLoader />;
   if (!challenge) return <p>No challenge data found.</p>;
 
   return (
@@ -140,32 +147,36 @@ export default function ChallengeDetails() {
         {/* Challenge Books */}
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>Challenge Books</h2>
-          <div className={styles.booksGrid}>
-            {challenge.books.length === 0 && <p>No books available</p>}
-            {challenge.books.map((book, index) => (
-              <div key={index} className={styles.bookItem}>
-                <div className={styles.bookCoverContainer}>
-                  <img
-                    src={
-                      book.cover ||
-                      "https://placehold.co/64x96/E5E7EB/4B5563?text=Cover"
-                    }
-                    alt={book.title || "Book"}
-                    className={styles.bookCover}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src =
-                        "https://placehold.co/64x96/E5E7EB/4B5563?text=Cover";
-                    }}
-                  />
-                </div>
-                <div className={styles.bookDetails}>
-                  <h3 className={styles.bookTitle}>{book.title || "Book"}</h3>
-                  <p className={styles.bookAuthor}>{book.author || ""}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+<div className={styles.booksGrid}>
+  {challenge.books.length === 0 && <p>No books available</p>}
+  {challenge.books.map((book) => (
+    <Link
+      key={book.id}
+      href={`/dashboard/booksManagement/books/${book.id}/book-details`}
+      className={styles.bookItem}
+    >
+      <div className={styles.bookCoverContainer}>
+        <img
+          src={
+            book.cover ||
+            "https://placehold.co/64x96/E5E7EB/4B5563?text=Cover"
+          }
+          alt={book.title || "Book"}
+          className={styles.bookCover}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src =
+              "https://placehold.co/64x96/E5E7EB/4B5563?text=Cover";
+          }}
+        />
+      </div>
+      <div className={styles.bookDetails}>
+        <h3 className={styles.bookTitle}>{book.title || "Book"}</h3>
+      </div>
+    </Link>
+  ))}
+</div>
+
         </div>
       </div>
     </PermissionGuard>

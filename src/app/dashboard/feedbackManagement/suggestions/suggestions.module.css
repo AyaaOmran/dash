@@ -5,15 +5,6 @@
   min-height: 475px;
 }
 
-.tableControls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
 .buttonsGroup {
   display: flex;
   gap: 10px;
@@ -26,4 +17,29 @@
 
 .selectedRow {
   background-color: #ede9f3;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tabButton {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: #f0f0f0;
+  text-decoration: none;
+  font-weight: 500;
+  color: #333;
+  transition: 0.2s;
+}
+
+.tabButton:hover {
+  background: #e0e0e0;
+}
+
+.active {
+  background: var(--color-primary); /* أزرق */
+  color: white;
 }

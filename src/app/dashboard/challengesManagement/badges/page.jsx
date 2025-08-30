@@ -12,6 +12,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import DeleteConfirmation from "@/components/common/DeleteConfirmation";
 import PermissionGuard from "@/components/features/guard/PermissionGuard";
+import { usePermissions } from "@/context/PermissionsContext";
+import Link from "next/link";
 
 export default function Badges() {
   const [badges, setBadges] = useState([]);
@@ -21,6 +23,7 @@ export default function Badges() {
   const [currentPage, setCurrentPage] = useState(1);
   const [deletingBadge, setDeletingBadge] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { permissions } = usePermissions();
 
   const fetchBadges = async (page = 1) => {
     setLoading(true);
@@ -70,76 +73,98 @@ export default function Badges() {
   };
 
   return (
-        <PermissionGuard
-          allowedRoles={["super_admin", "admin"]}
-          requiredPermissions={["read challenge"]}
-        >
-    <div className={styles.membersTableWrapper}>
-      <div className={styles.tableControls}>
-        <SearchBar value={searchSection} onChange={setSearchSection} />
-        <div className={styles.buttonsGroup}>
-          <FilterMenu
-            options={["Name", "Newest", "Oldest"]}
-            onSelect={(selected) => {}}
-          />
-          <AddNewBtn value="Badge" />
-        </div>
-      </div>
-
-      <MembersTable
-        members={filteredMembers}
-        selectedRows={selectedRows}
-        onRowCheck={handleRowCheck}
-        onSelectAll={handleSelectAll}
-        loading={loading}
-        actions={(badge) => (
-          <>
-            <button title="Edit">
-              <Icon icon="tabler:edit" className={styles.actionsIcon} />
-            </button>
-            <button title="Delete" onClick={() => setDeletingBadge(badge)}>
-              <Icon icon="tabler:trash" className={styles.actionsIcon} />
-            </button>
-          </>
-        )}
-        columns={[
-          { label: "ID", key: "id" },
-          {
-            label: "Icon",
-            render: (badge) => (
-              <img
-                src={badge.image}
-                alt={badge.name}
-                style={{ width: 25, height: 25, borderRadius: "50%" }}
+    <PermissionGuard
+      allowedRoles={["super_admin", "admin"]}
+      requiredPermissions={["read badge"]}
+    >
+      <div className={styles.membersTableWrapper}>
+        <div className={styles.tableControls}>
+          <SearchBar value={searchSection} onChange={setSearchSection} />
+          <div className={styles.buttonsGroup}>
+            {permissions["create badge"] && (
+              <AddNewBtn
+                value="Badge"
+                to="/dashboard/challengesManagement/badges/add-badge"
               />
-            ),
-          },
-          { label: "Title", key: "title" },
-          { label: "Description", key: "description" },
-          { label: "N.Earners", key: "number_of_earners" },
-        ]}
-      />
-      <Pagination
-        currentPage={currentPage}
-        links={paginationLinks}
-        onPageChange={(page) => fetchBadges(page)}
-      />
+            )}
+          </div>
+        </div>
 
-      {deletingBadge && (
-        <DeleteConfirmation
-          itemId={deletingBadge.id}
-          itemName={deletingBadge.title}
-          itemType="badge"
-          apiUrl={"http://127.0.0.1:8000/api/badges"}
-          onClose={() => setDeletingBadge(null)}
-          onSuccess={() => {
-            setDeletingBadge(null);
-            fetchBadges();
-          }}
+        <MembersTable
+          members={filteredMembers}
+          selectedRows={selectedRows}
+          onRowCheck={handleRowCheck}
+          onSelectAll={handleSelectAll}
+          loading={loading}
+          actions={
+            permissions["update category"] || permissions["delete category"]
+              ? (badge) => (
+                  <>
+                  {permissions["update badge"] && (
+                      <Link
+                        href={`/dashboard/challengesManagement/badges/${badge.id}/edit-badge`}
+                        title="Edit"
+                        className={styles.iconButton}
+                      >
+                        <Icon
+                          icon="tabler:edit"
+                          className={styles.actionsIcon}
+                        />
+                      </Link>
+                  )}
+                    {permissions["delete badge"] && (
+                    <button
+                      title="Delete"
+                      onClick={() => setDeletingBadge(badge)}
+                    >
+                      <Icon
+                        icon="tabler:trash"
+                        className={styles.actionsIcon}
+                      />
+                    </button>
+                    )}
+
+                  </>
+                )
+              : null
+          }
+          columns={[
+            { label: "ID", key: "id" },
+            {
+              label: "Icon",
+              render: (badge) => (
+                <img
+                  src={badge.image}
+                  alt={badge.name}
+                  style={{ width: 25, height: 25, borderRadius: "50%" }}
+                />
+              ),
+            },
+            { label: "Title", key: "title" },
+            { label: "Description", key: "description" },
+            { label: "N.Earners", key: "number_of_earners" },
+          ]}
         />
-      )}
-    </div>
-        </PermissionGuard>
+        <Pagination
+          currentPage={currentPage}
+          links={paginationLinks}
+          onPageChange={(page) => fetchBadges(page)}
+        />
 
+        {deletingBadge && (
+          <DeleteConfirmation
+            itemId={deletingBadge.id}
+            itemName={deletingBadge.title}
+            itemType="badge"
+            apiUrl={"http://127.0.0.1:8000/api/badges"}
+            onClose={() => setDeletingBadge(null)}
+            onSuccess={() => {
+              setDeletingBadge(null);
+              fetchBadges();
+            }}
+          />
+        )}
+      </div>
+    </PermissionGuard>
   );
 }

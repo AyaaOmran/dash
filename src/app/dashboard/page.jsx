@@ -32,13 +32,9 @@ export default function Dashboard() {
         } else {
           toast.error("An error occurred while loading the data.");
         }
-      } catch (error) {
-        if (error.response?.status === 401) {
-          toast.error("Unauthorized. Please login again.");
-        } else {
-          toast.error("Server connection failed. Please try again later.");
-        }
-      }
+      }catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to update challenge');
+          } 
     };
 
     fetchData();

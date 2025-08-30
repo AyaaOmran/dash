@@ -78,10 +78,6 @@ export default function Admins() {
       <div className={styles.tableControls}>
         <SearchBar value={searchSection} onChange={setSearchSection} />
         <div className={styles.buttonsGroup}>
-          <FilterMenu
-            options={["Name", "Newest", "Oldest"]}
-            onSelect={(selected) => {}}
-          />
           <AddNewBtn value="Admin" onClick={() => setNewAdminPopup(true)} />
           {newAdminPopup && (
             <AddNewAdmin

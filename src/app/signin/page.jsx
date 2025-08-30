@@ -68,6 +68,9 @@ export default function SignIn() {
       console.error("Login Error:", error);
       if (error.response) {
         const status = error.response.status;
+        const message = error.response.data?.message || error.message;
+
+        console.error("Server Response Error:", status, message);
         if (status === 401) {
           setErrors({ form: "Invalid email or password." });
         } else {

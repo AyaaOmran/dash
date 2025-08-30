@@ -211,3 +211,44 @@
 .searchResultItem:hover {
   background-color: var(--color-light);
 }
+.selectedItems {
+  margin-top: 15px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+}
+
+.selectedItems p {
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+.selectedItems ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.selectedBookItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #111827;
+}
+
+.removeBookBtn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.removeBookBtn:hover {
+  transform: scale(1.2);
+}

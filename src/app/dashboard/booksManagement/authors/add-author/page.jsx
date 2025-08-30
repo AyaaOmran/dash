@@ -5,7 +5,6 @@ import styles from "./addAuthor.module.css";
 import PermissionGuard from "@/components/features/guard/PermissionGuard";
 import axios from "axios";
 import { toast } from "react-toastify";
-import FullPageLoader from "@/components/common/FullPageLoader";
 
 export default function AddAuthor() {
   const [formData, setFormData] = useState({
@@ -17,10 +16,8 @@ export default function AddAuthor() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filteredCountries, setFilteredCountries] = useState([]);
   const [countryTyping, setCountryTyping] = useState("");
-  // New state to hold the image preview URL
-  const [previewImage, setPreviewImage] = useState(null); 
+  const [previewImage, setPreviewImage] = useState(null);
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -38,11 +35,9 @@ export default function AddAuthor() {
     }
   };
 
-  // Handle file input changes
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setFormData((prev) => ({ ...prev, imageFile: file }));
-    // Create a URL for the selected file to display a preview
     if (file) {
       setPreviewImage(URL.createObjectURL(file));
     } else {
@@ -50,7 +45,6 @@ export default function AddAuthor() {
     }
   };
 
-  // Fetch countries
   useEffect(() => {
     if (!countryTyping.trim()) {
       setFilteredCountries([]);
@@ -71,7 +65,8 @@ export default function AddAuthor() {
         setFilteredCountries(response.data.countries || []);
       } catch (error) {
         toast.error(
-          error.response?.data?.message || "Something went wrong, please try again!"
+          error.response?.data?.message ||
+            "Something went wrong, please try again!"
         );
       }
     };
@@ -80,11 +75,9 @@ export default function AddAuthor() {
     return () => clearTimeout(timeoutId);
   }, [countryTyping]);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Removed setMessage("") as it's not defined
 
     try {
       const payload = new FormData();
@@ -111,11 +104,11 @@ export default function AddAuthor() {
         countryId: "",
         countryName: "",
       });
-      // Reset the image preview after successful submission
       setPreviewImage(null);
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Something went wrong, please try again!"
+        error.response?.data?.message ||
+          "Something went wrong, please try again!"
       );
     } finally {
       setIsSubmitting(false);
@@ -132,7 +125,10 @@ export default function AddAuthor() {
           {/* Author Information Section */}
           <div className={styles.card}>
             <div className={styles.sectionHeader}>
-              <Icon icon="mdi:account-edit-outline" className={styles.sectionIcon} />
+              <Icon
+                icon="mdi:account-edit-outline"
+                className={styles.sectionIcon}
+              />
               <h2 className={styles.sectionTitle}>Author Information</h2>
             </div>
             <div className={styles.grid}>

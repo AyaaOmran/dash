@@ -3,10 +3,8 @@ import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import styles from "./reader.module.css";
 import SearchBar from "@/components/common/SearchBar";
-import FilterMenu from "@/components/common/FilterMenu";
 import MembersTable from "@/components/common/MembersTable";
 import Link from "next/link";
-import FullPageLoader from "@/components/common/FullPageLoader";
 import Pagination from "@/components/common/Pagination";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -33,9 +31,6 @@ export default function Readers() {
       );
 
       const data = response.data;
-      // console.log("Fetched readers:", data);
-      // console.log("Token:", localStorage.getItem("token"));
-
       setReaders(data.data);
       setPaginationLinks(data.links);
       setCurrentPage(data.current_page);
@@ -70,58 +65,51 @@ export default function Readers() {
   };
 
   return (
-<PermissionGuard allowedRoles={["super_admin"]}>
-    <div className={styles.membersTableWrapper}>
-      <div className={styles.tableControls}>
-        <SearchBar value={searchSection} onChange={setSearchSection} />
-        <div className={styles.buttonsGroup}>
-          <FilterMenu
-            options={["Name", "Newest", "Oldest"]}
-            onSelect={(selected) => {}}
-          />
+    <PermissionGuard allowedRoles={["super_admin"]}>
+      <div className={styles.membersTableWrapper}>
+        <div className={styles.tableControls}>
+          <SearchBar value={searchSection} onChange={setSearchSection} />
+          <div className={styles.buttonsGroup}></div>
         </div>
+
+        <MembersTable
+          members={filteredMembers}
+          selectedRows={selectedRows}
+          onRowCheck={handleRowCheck}
+          onSelectAll={handleSelectAll}
+          loading={loading}
+          actions={(reader) => (
+            <>
+              <Link
+                href={`/dashboard/usersManagement/readers/${reader.id}/reader-profile`}
+                title="profile"
+              >
+                <Icon icon="tabler:eye" className={styles.actionsIcon} />
+              </Link>
+            </>
+          )}
+          columns={[
+            { label: "ID", key: "id" },
+            {
+              label: "Picture",
+              render: (reader) => (
+                <img
+                  src={reader.picture}
+                  alt={reader.name}
+                  className={styles.pic}
+                />
+              ),
+            },
+            { label: "Name", key: "name" },
+            { label: "Email", key: "email" },
+          ]}
+        />
+        <Pagination
+          currentPage={currentPage}
+          links={paginationLinks}
+          onPageChange={(page) => fetchReaders(page)}
+        />
       </div>
-
-      <MembersTable
-        members={filteredMembers}
-        selectedRows={selectedRows}
-        onRowCheck={handleRowCheck}
-        onSelectAll={handleSelectAll}
-        loading={loading}
-        actions={(reader) => (
-          <>
-            <Link
-              href={`/dashboard/usersManagement/readers/${reader.id}/reader-profile`}
-              title="profile"
-            >
-              <Icon icon="tabler:eye" className={styles.actionsIcon} />
-            </Link>
-          </>
-        )}
-        columns={[
-          { label: "ID", key: "id" },
-          {
-            label: "Picture",
-            render: (reader) => (
-              <img
-                src={reader.picture}
-                alt={reader.name}
-                className={styles.pic}
-
-              />
-            ),
-          },
-          { label: "Name", key: "name" },
-          { label: "Email", key: "email" },
-        ]}
-      />
-      <Pagination
-        currentPage={currentPage}
-        links={paginationLinks}
-        onPageChange={(page) => fetchReaders(page)}
-      />
-    </div>
-</PermissionGuard>
-
+    </PermissionGuard>
   );
 }
